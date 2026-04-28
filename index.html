@@ -1,40 +1,113 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سبورة الحكيم نور الذكية</title>
+    <title>سبورة الحكيم نور الذكية - التحكم المباشر</title>
     <style>
-        :root { --bg: #0f172a; --text: #38bdf8; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Tahoma; height: 100vh; margin: 0; display: flex; justify-content: center; align-items: center; text-align: center; overflow: hidden; }
-        #display { font-size: 120px; font-weight: bold; transition: all 0.5s ease; text-shadow: 0 0 30px var(--text); }
-        .instructions { position: absolute; bottom: 20px; font-size: 18px; color: #64748b; }
+        /* تصميم الواجهة - بسيط وجذاب لطلاب الصف الأول والثاني */
+        :root {
+            --bg-color: #0f172a;
+            --text-color: #38bdf8;
+            --accent-color: #22c55e;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            direction: rtl;
+        }
+
+        /* حاوية العرض الرئيسي */
+        #display-area {
+            font-size: 180px; /* حجم ضخم للسبورة */
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 0 0 30px rgba(56, 189, 248, 0.5);
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 20px;
+            width: 90%;
+        }
+
+        /* رسائل الحالة للمعلم */
+        #status-bar {
+            position: absolute;
+            bottom: 20px;
+            font-size: 18px;
+            color: #64748b;
+            border-top: 1px solid #1e293b;
+            padding-top: 10px;
+            width: 80%;
+            text-align: center;
+        }
+
+        /* تأثير الحركة عند تغيير المحتوى */
+        .pop-effect {
+            animation: pop 0.5s ease-out;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="display">بانتظار أمر المعلم..</div>
-    
-    <div class="instructions">مفتوح الآن عبر GitHub Pages | التحكم من الهاتف مفعل</div>
+    <div id="display-area">بانتظار أمرك...</div>
+
+    <div id="status-bar">
+        نظام الحكيم نور المتصل | الاتجاه: من اليمين لليسار | الأرقام: مشرقية
+    </div>
 
     <script>
-        // دالة لتحويل الأرقام إلى مشرقية تلقائياً
-        const h = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-        function toH(txt) { return txt.toString().replace(/\d/g, d => h[d]); }
+        // ١. قاموس تحويل الأرقام إلى المشرقية (٠-٩) تلقائياً
+        const hindiDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        
+        function translateToHindi(text) {
+            return text.toString().replace(/\d/g, (d) => hindiDigits[d]);
+        }
 
-        // ابتكار: دالة لتحديث المحتوى عبر URL
-        // يمكنك الآن تغيير ما يظهر على السبورة بمجرد إضافة ?q=نص بعد الرابط
-        function checkParams() {
-            const params = new URLSearchParams(window.location.search);
-            const query = params.get('q');
-            if (query) {
-                document.getElementById('display').innerText = toH(query);
+        // ٢. وظيفة التحديث الآني (تراقب ملف cmd.txt الذي سأقوم بتحديثه لك)
+        async function fetchCommand() {
+            try {
+                // سيقوم المتصفح بجلب محتوى الملف cmd.txt الموجود في مستودعك
+                // تم إضافة مكمل عشوائي لمنع المتصفح من حفظ "الكاش" لضمان الآنية
+                const response = await fetch('cmd.txt?nocache=' + Math.random());
+                if (response.ok) {
+                    const newText = await response.text();
+                    updateUI(newText.trim());
+                }
+            } catch (error) {
+                console.log("بانتظار الاتصال بالخادم...");
             }
         }
-        
-        window.onload = checkParams;
-        // تحديث آلي كل 5 ثوانٍ للتحقق من الأوامر الجديدة
-        setInterval(checkParams, 5000);
+
+        // ٣. تحديث الشاشة مع إضافة التأثيرات البصرية
+        let currentText = "";
+        function updateUI(text) {
+            const display = document.getElementById('display-area');
+            if (text !== currentText && text !== "") {
+                currentText = text;
+                display.classList.remove('pop-effect');
+                void display.offsetWidth; // إعادة تشغيل الـ Animation
+                display.innerText = translateToHindi(text);
+                display.classList.add('pop-effect');
+            }
+        }
+
+        // ٤. التشغيل التلقائي والمراقبة المستمرة (كل ثانية واحدة)
+        setInterval(fetchCommand, 1000);
+
     </script>
 </body>
 </html>
