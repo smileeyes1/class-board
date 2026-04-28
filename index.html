@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سبورة الحكيم نور الذكية</title>
+    <style>
+        :root { --bg: #0f172a; --text: #38bdf8; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', Tahoma; height: 100vh; margin: 0; display: flex; justify-content: center; align-items: center; text-align: center; overflow: hidden; }
+        #display { font-size: 120px; font-weight: bold; transition: all 0.5s ease; text-shadow: 0 0 30px var(--text); }
+        .instructions { position: absolute; bottom: 20px; font-size: 18px; color: #64748b; }
+    </style>
+</head>
+<body>
+
+    <div id="display">بانتظار أمر المعلم..</div>
+    
+    <div class="instructions">مفتوح الآن عبر GitHub Pages | التحكم من الهاتف مفعل</div>
+
+    <script>
+        // دالة لتحويل الأرقام إلى مشرقية تلقائياً
+        const h = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        function toH(txt) { return txt.toString().replace(/\d/g, d => h[d]); }
+
+        // ابتكار: دالة لتحديث المحتوى عبر URL
+        // يمكنك الآن تغيير ما يظهر على السبورة بمجرد إضافة ?q=نص بعد الرابط
+        function checkParams() {
+            const params = new URLSearchParams(window.location.search);
+            const query = params.get('q');
+            if (query) {
+                document.getElementById('display').innerText = toH(query);
+            }
+        }
+        
+        window.onload = checkParams;
+        // تحديث آلي كل 5 ثوانٍ للتحقق من الأوامر الجديدة
+        setInterval(checkParams, 5000);
+    </script>
+</body>
+</html>
